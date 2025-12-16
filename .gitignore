@@ -25,3 +25,12 @@ htmlcov/
 # artifacts/*.joblib
 .vscode/
 .idea/
+
+# Security & Secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.token
+secrets/
