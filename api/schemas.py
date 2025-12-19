@@ -7,11 +7,13 @@ from pydantic import BaseModel, Field
 class GridForecastRequest(BaseModel):
     horizon_hours: int = Field(default=24, ge=1, le=168, description="Forecast horizon (1 to 168 hours)")
     temperature_override_c: Optional[float] = Field(default=None, description="Optional what-if temperature override")
+    custom_recent_net_load_mw: Optional[List[float]] = Field(default=None, description="Optional custom recent hourly meter readings")
     seed: int = Field(default=42, ge=0)
 
 
 class HourlyQuantilePoint(BaseModel):
     step_ahead_hour: int
+    timestamp_iso: Optional[str] = None
     p10_mw: float
     p50_mw: float
     p90_mw: float

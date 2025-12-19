@@ -72,6 +72,9 @@ def forecast(req: GridForecastRequest):
     df = baseline_df.copy()
     if req.temperature_override_c is not None:
         df["temperature_c"] = req.temperature_override_c
+    if req.custom_recent_net_load_mw:
+        n_custom = min(len(req.custom_recent_net_load_mw), len(df))
+        df.iloc[-n_custom:, df.columns.get_loc("net_load_mw")] = req.custom_recent_net_load_mw[-n_custom:]
 
     extractor = GridFeatureExtractor(config=DEFAULT_GRID_CONFIG)
     X, _ = extractor.create_features(df)
@@ -85,14 +88,17 @@ def forecast(req: GridForecastRequest):
     p50_arr = preds["p50"]
     p90_arr = preds["p90"]
 
+    last_ts = df["timestamp"].iloc[-1]
     points: List[HourlyQuantilePoint] = []
     for step in range(len(p50_arr)):
         p10 = float(p10_arr[step])
         p50 = float(p50_arr[step])
         p90 = float(p90_arr[step])
+        step_ts = (last_ts + pd.Timedelta(hours=step + 1)).isoformat()
         points.append(
             HourlyQuantilePoint(
                 step_ahead_hour=step + 1,
+                timestamp_iso=step_ts,
                 p10_mw=round(p10, 2),
                 p50_mw=round(p50, 2),
                 p90_mw=round(p90, 2),

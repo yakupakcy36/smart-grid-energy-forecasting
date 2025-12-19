@@ -24,6 +24,7 @@ def test_forecast_endpoint(client):
     payload = {
         "horizon_hours": 24,
         "temperature_override_c": 18.5,
+        "custom_recent_net_load_mw": [410.0, 425.0, 430.0],
         "seed": 42
     }
     response = client.post("/forecast", json=payload)
@@ -32,6 +33,7 @@ def test_forecast_endpoint(client):
     assert data["horizon_hours"] == 24
     assert len(data["forecast_points"]) == 24
     assert data["peak_reserve_p90_mw"] >= data["peak_expected_p50_mw"]
+    assert data["forecast_points"][0]["timestamp_iso"] is not None
 
     # Verify monotonic quantile order for all points
     for pt in data["forecast_points"]:
