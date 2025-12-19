@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  smart-grid-forecaster:
+    build: .
+    container_name: smart-grid-forecaster
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
